@@ -105,7 +105,7 @@
       this.input.focus(function() {
         self.abbreviationBeforeFocus = self.input.val();
         self.input[0].setSelectionRange(0, self.input.val().length);
-        if (!self.picked) self.filterResults();
+        self.filterResults();
       });
 
       this.input.blur(function() {
@@ -208,9 +208,8 @@
 
     filterResults: function() {
       var showDisabled = this.settings.showDisabledOptions;
-      var abbreviation = $.trim(this.input.val());
+      var abbreviation =  this.lastAbbreviation === null ? '' : ( $.trim(this.input.val()) === this.lastAbbreviation ) ? this.lastAbbreviation : $.trim(this.input.val());
       var sortByMechanism = (abbreviation == "") ? this.settings.blankSortBy : this.settings.sortBy;
-      if (abbreviation == this.lastAbbreviation) return;
 
       var results = [];
       $.each(this.cache, function() {
@@ -223,7 +222,7 @@
       this.sortResultsBy(sortByMechanism);
       this.renderDropdown();
       this.markFirst();
-      this.lastAbbreviation = abbreviation;
+      this.lastAbbreviation =  abbreviation;
       this.picked = false;
       this.allowMouseMove = false;
 
