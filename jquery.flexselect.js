@@ -30,7 +30,7 @@
       inputIdTransform:    function(id)   { return id + "_flexselect"; },
       inputNameTransform:  function(name) { return; },
       dropdownIdTransform: function(id)   { return id + "_flexselect_dropdown"; }
-    },
+      },
     select: null,
     input: null,
     dropdown: null,
@@ -46,7 +46,7 @@
     indexOptgroupLabels: false,
 
     init: function(select, options) {
-      this.settings = $.extend({}, this.settings, options);
+      //this.settings = $.extend({}, this.settings, options);
       this.select = $(select);
       this.reloadCache();
       this.renderControls();
@@ -54,14 +54,17 @@
     },
 
     reloadCache: function() {
+      this.input.val(''); // Clear value 
+      this.select.find('option:first').attr('selected', 'selected'); // Clear select
+      
       var name, group, text, disabled;
       var indexGroup = this.settings.indexOptgroupLabels;
-      this.cache = this.select.find("option").map(function() {
+      this.cache = this.select.find("option").map(function ( i ) {
         name = $(this).text();
         group = $(this).parent("optgroup").attr("label");
         text = indexGroup ? [name, group].join(" ") : name;
         disabled = $(this).parent("optgroup").attr("disabled") || $(this).attr('disabled');
-        return { text: $.trim(text), name: $.trim(name), value: $(this).val(), disabled: disabled, score: 0.0 };
+        return { text: $.trim(text), name: $.trim(name), value: $(this).val(), disabled: disabled,score: 0.0 };
       });
     },
 
@@ -75,9 +78,9 @@
         tabindex: this.select.attr("tabindex"),
         style: this.select.attr("style"),
         placeholder: this.select.attr("data-placeholder")
-      }).addClass(this.select.attr("class")).val($.trim(selected ? selected.text():  '')).css({
+      }).addClass(this.select.attr("class")).removeClass('ValueAttrTask elementToSend').val($.trim(selected ? selected.text():  '')).css({
         visibility: 'visible'
-      });
+      })
 
       this.dropdown = $("<div></div>").attr({
         id: this.settings.dropdownIdTransform(this.select.attr("id"))
@@ -202,7 +205,9 @@
 
       var input = this.input;
       this.select.change(function () {
-        input.val($.trim($(this).find('option:selected').text()));
+        var selected = $(this).find('option:selected');
+        selected.prop('selected' , 'selected' );
+        input.val($.trim(selected.text()));
       });
     },
 
@@ -337,10 +342,14 @@
 
   $.fn.flexselect = function(options) {
     this.each(function() {
-      if ($(this).data("flexselect")) {
-        $(this).data("flexselect").reloadCache();
-      } else if (this.tagName == "SELECT") {
-        $(this).data("flexselect", new $.flexselect(this, options));
+     var fs = $(this).data('flexselect');
+     if ( fs ){
+       fs.reloadCache();
+     }else if (this.tagName == "SELECT") {
+        var felxSelectData = new $.flexselect(this, options);
+        var data = $(this).data();
+        data['flexselect'] = felxSelectData;
+        $(this).data( data );
       }
     });
     return this;
